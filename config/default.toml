@@ -1,0 +1,26 @@
+# Whether item paths sold by traitor uplinks should get warning components.
+include_uplink_items = true
+
+# Whether anything with TRAIT_CONTRABAND should get warning components.
+# This is broader than traitor uplinks, so it is off by default.
+include_trait_contraband = false
+
+# If true, only mobs with a security HUD trait see the warning.
+require_security_hud = true
+
+default_level = "Syndicate contraband"
+warning_text = "Security systems identify this item as contraband."
+
+# Add explicit rules like:
+# [[contraband]]
+# path = "/obj/item/example"
+# include_children = true
+# level = "Restricted"
+
+# Remove explicit rules or uplink-derived rules like:
+# [[exemptions]]
+# path = "/obj/item/example/safe_variant"
+# include_children = false
+
+contraband = []
+exemptions = []

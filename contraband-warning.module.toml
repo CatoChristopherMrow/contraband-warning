@@ -1,0 +1,22 @@
+id = "contraband-warning"
+name = "Contraband Warning"
+version = "1.0.0"
+module_api = "1"
+description = "Adds configurable examine warnings for contraband items."
+
+[source]
+repo = "https://github.com/CatoChristopherMrow/contraband-warning.git"
+default_branch = "main"
+
+[compat]
+target = "tgstation"
+minimum_dynamic_modules = "0.1.0"
+
+[build]
+dm_files = ["code/**/*.dm"]
+test_files = ["tests/**/*.dm"]
+
+[config]
+schema = "config/config.schema.json"
+defaults = "config/default.toml"
+version = 1

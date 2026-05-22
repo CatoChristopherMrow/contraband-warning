@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "include_uplink_items": {
+      "type": "boolean"
+    },
+    "include_trait_contraband": {
+      "type": "boolean"
+    },
+    "require_security_hud": {
+      "type": "boolean"
+    },
+    "default_level": {
+      "type": "string"
+    },
+    "warning_text": {
+      "type": "string"
+    },
+    "contraband": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rule"
+      }
+    },
+    "exemptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rule"
+      }
+    }
+  },
+  "$defs": {
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "include_children": {
+          "type": "boolean"
+        },
+        "level": {
+          "type": "string"
+        },
+        "require_security_hud": {
+          "type": "boolean"
+        },
+        "warning_text": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
