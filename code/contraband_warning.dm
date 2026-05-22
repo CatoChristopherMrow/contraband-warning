@@ -18,9 +18,11 @@ SUBSYSTEM_DEF(dynamic_contraband_warning)
 	var/warning_text = CONTRABAND_WARNING_DEFAULT_TEXT
 	var/list/datum/dynamic_contraband_warning_rule/contraband_rules = list()
 	var/list/datum/dynamic_contraband_warning_rule/exemption_rules = list()
+	var/list/uplink_item_typecache = list()
 
 /datum/controller/subsystem/dynamic_contraband_warning/Initialize()
 	load_module_config()
+	refresh_uplink_item_typecache()
 	RegisterSignal(SSdcs, COMSIG_GLOB_NEW_ITEM, PROC_REF(on_new_item))
 	for(var/obj/item/existing_item in world)
 		if(!(existing_item.flags_1 & INITIALIZED_1))
@@ -33,6 +35,7 @@ SUBSYSTEM_DEF(dynamic_contraband_warning)
 	UnregisterSignal(SSdcs, COMSIG_GLOB_NEW_ITEM)
 	QDEL_LIST(contraband_rules)
 	QDEL_LIST(exemption_rules)
+	uplink_item_typecache = null
 	return ..()
 
 /datum/controller/subsystem/dynamic_contraband_warning/proc/load_module_config()
@@ -50,6 +53,22 @@ SUBSYSTEM_DEF(dynamic_contraband_warning)
 	QDEL_LIST(exemption_rules)
 	contraband_rules = dynamic_contraband_warning_parse_rules(config["contraband"], default_level, require_security_hud, warning_text)
 	exemption_rules = dynamic_contraband_warning_parse_rules(config["exemptions"], default_level, require_security_hud, warning_text)
+
+/datum/controller/subsystem/dynamic_contraband_warning/proc/refresh_uplink_item_typecache()
+	uplink_item_typecache = list()
+	if(!include_uplink_items)
+		return
+
+	var/list/uplink_item_paths = list()
+	for(var/datum/uplink_item/uplink_item as anything in SStraitor.uplink_items)
+		if(!uplink_item.item)
+			continue
+		if(!(uplink_item.uplink_item_flags & SYNDIE_TRIPS_CONTRABAND))
+			continue
+		uplink_item_paths |= uplink_item.item
+
+	if(length(uplink_item_paths))
+		uplink_item_typecache = typecacheof(uplink_item_paths)
 
 /datum/controller/subsystem/dynamic_contraband_warning/proc/on_new_item(datum/source, obj/item/created_item)
 	SIGNAL_HANDLER
@@ -83,7 +102,7 @@ SUBSYSTEM_DEF(dynamic_contraband_warning)
 			return rule
 
 /datum/controller/subsystem/dynamic_contraband_warning/proc/is_default_contraband_item(obj/item/target)
-	if(include_uplink_items && dynamic_contraband_warning_is_uplink_item(target))
+	if(include_uplink_items && is_type_in_typecache(target, uplink_item_typecache))
 		return TRUE
 
 	if(include_trait_contraband && HAS_TRAIT(target, TRAIT_CONTRABAND))
@@ -145,18 +164,6 @@ SUBSYSTEM_DEF(dynamic_contraband_warning)
 	if(!user)
 		return FALSE
 	return HAS_TRAIT(user, TRAIT_SECURITY_HUD) || HAS_TRAIT(user, TRAIT_SECURITY_HUD_ID_ONLY)
-
-/proc/dynamic_contraband_warning_is_uplink_item(obj/item/target)
-	if(!istype(target))
-		return FALSE
-	for(var/datum/uplink_item/uplink_item as anything in SStraitor.uplink_items)
-		if(!uplink_item.item)
-			continue
-		if(!(uplink_item.uplink_item_flags & SYNDIE_TRIPS_CONTRABAND))
-			continue
-		if(istype(target, uplink_item.item))
-			return TRUE
-	return FALSE
 
 /proc/dynamic_contraband_warning_read_config()
 	var/raw_config = file2text(CONTRABAND_WARNING_CONFIG_PATH)
