@@ -39,3 +39,10 @@ The module defines:
 
 The subsystem attaches the component to matching existing items during init and
 to newly-created items through `COMSIG_GLOB_NEW_ITEM`.
+
+## Validation
+
+This module targets Dynamic SS13 Modules 1.0. Validate it inside a configured
+tgstation-style host by installing the module, running `dynamic-modules
+prepare`, then running the host unit-test suite so
+`/datum/unit_test/contraband_warning_*` executes.
