@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate config schema JSON
+        run: python3 -m json.tool config/config.schema.json >/tmp/contraband-config-schema.json
+      - name: Parse TOML manifests
+        run: |
+          python3 - <<'PY'
+          import tomllib
+          from pathlib import Path
+
+          for path in [Path("contraband-warning.module.toml"), Path("config/default.toml")]:
+              tomllib.loads(path.read_text(encoding="utf-8"))
+              print(f"parsed {path}")
+          PY
